@@ -1,0 +1,35 @@
+name: CI/CD Pipeline  # Name of the workflow
+
+on:
+  push:
+    branches:
+      - main  # Trigger workflow when code is pushed to main branch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # The OS for running the CI/CD pipeline
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3  # Pulls the latest code from GitHub repo
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18  # Using Node.js 18
+
+      - name: Install dependencies
+        run: npm install  # Install project dependencies
+
+      - name: Run tests
+        run: npm test  # Run automated tests
+
+  deploy:
+    needs: build  # Only run if build step is successful
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to Server
+        run: |
+          echo "Deploying application..."
+          # Here you can add SSH commands to deploy your app to a server
