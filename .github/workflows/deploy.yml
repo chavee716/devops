@@ -18,7 +18,7 @@ jobs:
         with:
           node-version: 18
 
-      # 🚀 Install dependencies for both frontend and auth service
+      # Install dependencies for both frontend and auth service
       - name: Install Dependencies (Frontend)
         run: |
           cd frontend
@@ -29,18 +29,18 @@ jobs:
           cd auth-service
           npm install
 
-      # 🚀 Start the Authentication Service (Backend)
+      # Start the Authentication Service (Backend)
       - name: Start Auth Service
         run: |
           cd auth-service
           nohup nodemon index.js &  # Run in background
 
-      # 🚀 Start the Frontend Service
+      # Start the Frontend Service
       - name: Start Frontend
         run: |
           cd frontend
           nohup npm run dev &  # Run in background
 
-      # 🚀 Deploy (Optional: Add your deployment steps here)
+      # Deploy (Optional: Add your deployment steps here)
       - name: Deploy Application
         run: echo "Add deployment commands here"
