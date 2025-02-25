@@ -1,4 +1,4 @@
-# Use an official Node.js runtime as base
+# Use Node.js as the base image
 FROM node:18
 
 # Set the working directory inside the container
@@ -10,11 +10,11 @@ COPY package*.json ./
 # Install dependencies
 RUN npm install
 
-# Copy the rest of the application
+# Copy the rest of the application code
 COPY . .
 
-# Expose the service port
-EXPOSE 5000
+# Expose the port your backend runs on (change if needed)
+EXPOSE 3001
 
-# Start the application
+# Command to start the backend server
 CMD ["npm", "start"]
