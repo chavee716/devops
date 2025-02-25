@@ -28,7 +28,7 @@ jobs:
                  -H "Content-Type: application/json" \
                  -d '{"username": "${{ secrets.DOCKERHUB_USERNAME }}", "password": "${{ secrets.DOCKERHUB_TOKEN }}"}' | jq -r .token)
           
-          curl -X POST "https://hub.docker.com/v2/repositories/${{ secrets.DOCKERHUB_USERNAME }}/todo/auth-service/" \
+          curl -X POST "https://hub.docker.com/v2/repositories/${{ secrets.DOCKERHUB_USERNAME }}/auth-service/" \
                -H "Authorization: JWT $TOKEN" \
                -H "Content-Type: application/json" \
                -d '{"namespace": "${{ secrets.DOCKERHUB_USERNAME }}", "name": "auth-service", "is_private": false}' || true
@@ -48,7 +48,7 @@ jobs:
                  -H "Content-Type: application/json" \
                  -d '{"username": "${{ secrets.DOCKERHUB_USERNAME }}", "password": "${{ secrets.DOCKERHUB_TOKEN }}"}' | jq -r .token)
           
-          curl -X POST "https://hub.docker.com/v2/repositories/${{ secrets.DOCKERHUB_USERNAME }}/todo/frontend/" \
+          curl -X POST "https://hub.docker.com/v2/repositories/${{ secrets.DOCKERHUB_USERNAME }}/frontend/" \
                -H "Authorization: JWT $TOKEN" \
                -H "Content-Type: application/json" \
                -d '{"namespace": "${{ secrets.DOCKERHUB_USERNAME }}", "name": "frontend", "is_private": false}' || true

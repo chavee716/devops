@@ -1,0 +1,80 @@
+name: Deploy to AWS EC2
+
+on:
+  workflow_run:
+    workflows: ["Build and Push Docker Images"]
+    types:
+      - completed
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+          
+      - name: Login to EC2 instance and deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            # Login to Docker Hub
+            echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+            
+            # Pull the latest images
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/auth-service:latest
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/frontend:latest
+            
+            # Stop and remove existing containers if they exist
+            docker stop auth-service frontend || true
+            docker rm auth-service frontend || true
+            
+            # Create or update docker-compose.yml file
+            cat > docker-compose.yml << 'EOL'
+            version: '3'
+            
+            services:
+              auth-service:
+                image: ${{ secrets.DOCKERHUB_USERNAME }}/auth-service:latest
+                container_name: auth-service
+                restart: always
+                ports:
+                  - "3001:3001"
+                environment:
+                  - NODE_ENV=production
+                networks:
+                  - app-network
+            
+              frontend:
+                image: ${{ secrets.DOCKERHUB_USERNAME }}/frontend:latest
+                container_name: frontend
+                restart: always
+                ports:
+                  - "80:80"
+                depends_on:
+                  - auth-service
+                networks:
+                  - app-network
+            
+            networks:
+              app-network:
+                driver: bridge
+            EOL
+            
+            # Deploy with docker-compose
+            docker-compose up -d
+            
+            # Clean up unused images to save space
+            docker image prune -af
