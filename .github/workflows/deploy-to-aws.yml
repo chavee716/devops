@@ -15,14 +15,19 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
-          
+
+      - name: Debug SSH Connection
+        run: |
+          echo "Testing SSH connection..."
+          ssh -o StrictHostKeyChecking=no -vvv -i ~/.ssh/github_actions.pem ec2-user@${{ secrets.EC2_HOST }} "echo 'SSH Connected!'"
+
       - name: Login to EC2 instance and deploy
         uses: appleboy/ssh-action@master
         with:
@@ -30,39 +35,44 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            # Install Docker on Amazon Linux
+            echo "Starting deployment on EC2..."
+
+            # Ensure Docker is installed
             if ! command -v docker &> /dev/null; then
-              echo "Installing Docker (Amazon Linux)..."
+              echo "Installing Docker..."
               sudo yum update -y
               sudo yum install -y docker
               sudo service docker start
               sudo systemctl enable docker
-              sudo usermod -aG docker $USER
+              sudo usermod -aG docker ec2-user
             fi
-            
-            # Install Docker Compose
+
+            # Ensure Docker Compose is installed
             if ! command -v docker-compose &> /dev/null; then
               echo "Installing Docker Compose..."
-              sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+              sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
               sudo chmod +x /usr/local/bin/docker-compose
               sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
             fi
-            
-            # Create docker group if it doesn't exist
-            sudo groupadd -f docker
-            
-            # Use direct docker commands instead of requiring login first
-            sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/auth-service:latest
-            sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/frontend:latest
-            
-            # Stop and remove existing containers if they exist
-            sudo docker stop auth-service frontend || true
-            sudo docker rm auth-service frontend || true
-            
+
+            # Login to DockerHub (prevents rate limiting issues)
+            echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+            # Pull latest Docker images
+            echo "Pulling latest Docker images..."
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/auth-service:latest
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/frontend:latest
+
+            # Stop and remove existing containers
+            echo "Stopping existing containers..."
+            docker stop auth-service frontend || true
+            docker rm auth-service frontend || true
+
             # Create or update docker-compose.yml file
+            echo "Creating docker-compose.yml..."
             cat > ~/docker-compose.yml << 'EOL'
             version: '3'
-            
+
             services:
               auth-service:
                 image: ${{ secrets.DOCKERHUB_USERNAME }}/auth-service:latest
@@ -74,7 +84,7 @@ jobs:
                   - NODE_ENV=production
                 networks:
                   - app-network
-            
+
               frontend:
                 image: ${{ secrets.DOCKERHUB_USERNAME }}/frontend:latest
                 container_name: frontend
@@ -85,15 +95,23 @@ jobs:
                   - auth-service
                 networks:
                   - app-network
-            
+
             networks:
               app-network:
                 driver: bridge
             EOL
-            
-            # Deploy with docker-compose
+
+            # Deploy using docker-compose
+            echo "Deploying with docker-compose..."
             cd ~
-            sudo /usr/local/bin/docker-compose up -d
-            
-            # Clean up unused images to save space
-            sudo docker image prune -af
+            docker-compose up -d
+
+            # Wait for services to stabilize
+            sleep 10
+            docker ps
+
+            # Clean up old Docker images
+            echo "Cleaning up unused Docker images..."
+            docker image prune -af
+
+            echo "Deployment completed successfully!"
