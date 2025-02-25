@@ -8,13 +8,18 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 
-# Copy the rest of the app and build it
+# Copy the rest of the app
 COPY . .
-RUN npm run build
+
+# Fix permission issue for Vite
+RUN chmod +x node_modules/.bin/vite
+
+# Run the build command explicitly from the correct path
+RUN npx vite build
 
 # Use nginx to serve the build files
 FROM nginx:latest
-COPY --from=build /app/build /usr/share/nginx/html
+COPY --from=build /app/dist /usr/share/nginx/html
 
 # Expose the default Nginx port
 EXPOSE 80
