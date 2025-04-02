@@ -53,7 +53,7 @@ resource "aws_route_table_association" "app_rta" {
 
 # Create a security group
 resource "aws_security_group" "app_sg" {
-  name        = var.aws_security_group_name
+  name = replace(var.aws_security_group_name, "sg-", "security-")
   description = "Security group for todo application"
   vpc_id      = aws_vpc.app_vpc.id
 
