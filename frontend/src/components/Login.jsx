@@ -9,6 +9,8 @@ function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { login, isAuthenticated } = useAuth();
+  const baseUrl = import.meta.env.VITE_API_BASE_URL;
+
 
   // If already authenticated, redirect to homepage
   if (isAuthenticated) {
@@ -21,7 +23,7 @@ function Login() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:3001/login', {
+      const response = await fetch(`${baseUrl}/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

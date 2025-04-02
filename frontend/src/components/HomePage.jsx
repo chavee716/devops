@@ -6,6 +6,10 @@ const HomePage = () => {
   const { token, logout } = useAuth(); // Use token to check authentication status
   const navigate = useNavigate();
 
+  const baseUrl = import.meta.env.VITE_API_BASE_URL;
+ // Assuming 'BASE_URL' is defined in your environment variables
+
+
   // Redirect to tasks page if user is logged in
   useEffect(() => {
     if (token) {

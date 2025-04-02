@@ -7,10 +7,12 @@ export const TaskProvider = ({ children }) => {
     const [tasks, setTasks] = useState([]);
     const [loading, setLoading] = useState(true);
     const { token } = useAuth();
+    const baseUrl = import.meta.env.VITE_API_BASE_URL;
+
 
     const fetchTasks = async () => {
         try {
-            const response = await fetch('http://localhost:3001/tasks', {
+            const response = await fetch(`${baseUrl}/tasks`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -26,7 +28,7 @@ export const TaskProvider = ({ children }) => {
 
     const addTask = async (title, description) => {
         try {
-            const response = await fetch('http://localhost:3001/tasks', {
+            const response = await fetch(`${baseUrl}/tasks`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -45,7 +47,7 @@ export const TaskProvider = ({ children }) => {
 
     const updateTask = async (taskId, updates) => {
         try {
-            const response = await fetch(`http://localhost:3001/tasks/${taskId}`, {
+            const response = await fetch(`${baseUrl}/tasks/${taskId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -66,7 +68,7 @@ export const TaskProvider = ({ children }) => {
 
     const deleteTask = async (taskId) => {
         try {
-            await fetch(`http://localhost:3001/tasks/${taskId}`, {
+            await fetch(`${baseUrl}/tasks/${taskId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`
