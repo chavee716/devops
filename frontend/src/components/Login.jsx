@@ -14,7 +14,7 @@ function Login() {
 
   // If already authenticated, redirect to homepage
   if (isAuthenticated) {
-    return <Navigate to="/" />;
+    return <Navigate to="/tasks" />;
   }
 
   const handleSubmit = async (e) => {
