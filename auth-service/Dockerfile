@@ -8,12 +8,12 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install only production dependencies
-RUN npm install 
+RUN npm install --only=production
 
 # Copy the rest of the application code
 COPY . .
 
-# Expose the port your backend runs on (change if needed)
+# Expose the port your backend runs on
 EXPOSE 3001
 
 # Start the backend server
