@@ -7,14 +7,17 @@ WORKDIR /app
 # Copy package.json and package-lock.json first (for better caching)
 COPY package*.json ./
 
-# Install only production dependencies
-RUN npm install 
+# Install dependencies
+RUN npm install
 
 # Copy the rest of the application code
 COPY . .
 
-# Expose the port your backend runs on (change if needed)
+# Update the Vite configuration to allow external connections
+RUN sed -i 's/export default defineConfig({/export default defineConfig({\n  server: {\n    host: "0.0.0.0",\n    port: 5173,\n    strictPort: true\n  },/' vite.config.js
+
+# Expose the port your frontend runs on
 EXPOSE 5173
 
-# Start the backend server
-CMD ["npm", "run", "dev"]
+# Start the frontend server with host binding to allow external connections
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
