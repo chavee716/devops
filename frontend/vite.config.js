@@ -5,7 +5,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     host: '0.0.0.0', // This allows connections from any IP address
-    port: 80,
+    port: 5173,
     strictPort: true // Ensures Vite uses exactly this port
   },
   esbuild: {
