@@ -12,7 +12,7 @@ const TasksPage = () => {
   const [isAddingTask, setIsAddingTask] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [showPomodoro, setShowPomodoro] = useState(false);
-  const baseUrl = import.meta.env.VITE_API_BASE_URL;
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://18.190.217.113:3001";
 
 
 

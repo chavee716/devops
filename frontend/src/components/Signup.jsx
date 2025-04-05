@@ -8,7 +8,7 @@ function Signup() {
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const { login } = useAuth();
-  const baseUrl = import.meta.env.VITE_API_BASE_URL;
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://18.190.217.113:3001";
 
 
   const handleSubmit = async (e) => {

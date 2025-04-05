@@ -9,7 +9,7 @@ function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { login, isAuthenticated } = useAuth();
-  const baseUrl = import.meta.env.VITE_API_BASE_URL;
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://18.190.217.113:3001";
 
 
   // If already authenticated, redirect to homepage

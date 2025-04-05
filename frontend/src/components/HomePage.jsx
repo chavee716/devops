@@ -6,7 +6,7 @@ const HomePage = () => {
   const { token, logout } = useAuth(); // Use token to check authentication status
   const navigate = useNavigate();
 
-  const baseUrl = import.meta.env.VITE_API_BASE_URL;
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://18.190.217.113:3001";
  // Assuming 'BASE_URL' is defined in your environment variables
 
 
