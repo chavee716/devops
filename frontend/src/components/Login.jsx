@@ -52,7 +52,7 @@ function Login() {
         <div className="max-w-md w-full bg-white rounded-xl shadow-2xl p-8 space-y-6">
           <div className="text-center">
             <h2 className="text-4xl font-extrabold text-gray-900 mb-4 tracking-wide">
-              Sign in to Taskly
+              Sign to Taskly
             </h2>
             <p className="mt-2 text-sm text-gray-600">
               Or{' '}
