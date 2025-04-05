@@ -23,7 +23,7 @@ const HomePage = () => {
         <div className="flex items-center space-x-4 mb-6">
           
           <h1 className="text-5xl md:text-6xl font-extrabold tracking-wide drop-shadow-lg">
-            Welcome to Taskly
+            Welcome to Tasklys
           </h1>
           <img src="/logo.png" alt="Logo" className="w-14 h-14" /> {/* Increased logo size */}
         </div>
